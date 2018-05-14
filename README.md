@@ -3,12 +3,10 @@
 
 # 首先需要安装Dlib 
 - ubuntu 可以直接pip install Dlib
-
 - 安装完后，可以在dlib下的文件夹找到对应的模型文件，修改路径就好，或者在Dlib官网直接下载：
-
   - 关键点检测：shape_predictor_68_face_landmarks.dat
-
   - 人脸特征表示：dlib_face_recognition_resnet_model_v1.dat
+- 注意！代码中的路径都是我电脑本地的，请修改为合适的路径
 
 
 # 人脸识别效果
