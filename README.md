@@ -1,0 +1,2 @@
+# FaceRecognitionByUseDlib
+使用Dlib进行人脸识别，可以识别出人脸是图库里的谁。和识别人脸68个关键点
