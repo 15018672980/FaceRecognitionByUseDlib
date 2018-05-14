@@ -15,3 +15,5 @@ ubuntu 可以直接pip install Dlib
 ![Alt text](https://raw.githubusercontent.com/15018672980/FaceRecognitionByUseDlib/master/result.jpg)
 
 68关键点效果
+
+![Alt text](https://raw.githubusercontent.com/15018672980/FaceRecognitionByUseDlib/master/result2.jpg)
