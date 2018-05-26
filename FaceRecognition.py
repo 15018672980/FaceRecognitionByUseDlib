@@ -3,14 +3,17 @@ import dlib
 import cv2
 import numpy as np
 import glob
+from addEye import *
 
 
 root = '/home/tas/anaconda2/lib/python2.7/site-packages/face_recognition_models/models/'
 pose_predictor_68_point = dlib.shape_predictor(root+'shape_predictor_68_face_landmarks.dat')
 face_detector = dlib.get_frontal_face_detector()
 face_encoder = dlib.face_recognition_model_v1(root+'dlib_face_recognition_resnet_model_v1.dat')
-
-
+left_eye = cv2.imread("/home/tas/桌面/lefteye00.png")
+right_eye = cv2.imread("/home/tas/桌面/righteye00.png")
+lcenter = None
+rcenter = None
 
 def face_detect(img):
     dets = face_detector(img, 1)
@@ -33,12 +36,20 @@ def find_face(img):
 
 
 # 绘制关键点
-def draw_landmark(img, landmarks):
+def draw_landmark(img, landmarks,drawMark= False, drawEye = True):
     cur_img = np.copy(img)
     for mark in landmarks:
-        for i in range(mark.num_parts):
-            point = mark.part(i)
-            cv2.circle(cur_img, (point.x, point.y), 3, (0, 0, 255))
+        if drawEye:
+            lp1 = mark.part(36)
+            lp2 = mark.part(39)
+            rp1 = mark.part(42)
+            rp2 = mark.part(45)
+            lcenter,cur_img = put_logo_in_img(cur_img, left_eye,(lp1.x,lp1.y),(lp2.x,lp2.y),0,-5)
+            rcenter,cur_img = put_logo_in_img(cur_img, right_eye, (rp1.x, rp1.y), (rp2.x, rp2.y),0,5)
+        if drawMark:
+            for i in range(mark.num_parts):
+                point = mark.part(i)
+                cv2.circle(cur_img, (point.x, point.y), 3, (0, 0, 255))
     return cur_img
 
 
@@ -62,12 +73,24 @@ def put_name(img, draw_img, landmarks):
     return draw_img
 
 
-def find_face_by_img(img):
+templandmarks = []
+tempfaces = []
+
+
+def find_face_by_img(img, if_find_face=True):
+    global templandmarks, tempfaces
     img_search = np.copy(img)
     img_search = cv2.cvtColor(img_search, cv2.COLOR_BGR2RGB)
-    faces, landmark = find_face(img_search)
+    faces =[]
+    if if_find_face:
+        faces, landmark = find_face(img_search)
+        templandmarks, tempfaces = faces, landmark
+    if not faces:
+        faces, landmark = templandmarks, tempfaces
+    if not faces:
+        return img
     draw_img = draw_rectangle(img, faces)
-    #draw_img = draw_landmark(draw_img, landmark)
+    draw_img = draw_landmark(draw_img, landmark)
     draw_img = put_name(img_search, draw_img, landmark)
     return draw_img
 
@@ -98,7 +121,7 @@ def GetAllFace(url):
 allFace = GetAllFace('/home/tas/PycharmProjects/untitled/venv2/dlibFace/faceDB')
 
 
-def GetTheNearFace(curLandMark, tolerance=0.6):
+def GetTheNearFace(curLandMark, tolerance=0.7):
     names = []
     for face in allFace:
         distant = face_distance(face[1], curLandMark)
@@ -109,26 +132,31 @@ def GetTheNearFace(curLandMark, tolerance=0.6):
 
 
 def find_face_by_video():
-    cap = cv2.VideoCapture(0)
+    fps = 24
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    videoWriter = cv2.VideoWriter('/home/tas/下载/saveVideo.avi', fourcc, fps, (442, 240))
+    cap = cv2.VideoCapture("/home/tas/下载/38186707-1-6.mp4")
     n = 0
     while cap.isOpened():
         n += 1
         ret, img = cap.read()
-        if n % 1 == 0:
-            draw_img = find_face_by_img(img)
-        else:
-            draw_img = img
+        if img is None:
+            break
+        draw_img = find_face_by_img(img, n % 2 == 0)
+
         cv2.imshow('face', draw_img)
+        videoWriter.write(draw_img)
         k = cv2.waitKey(10)
         if k == 27:
             break
 
 
 if __name__ == '__main__':
-    if True:
-        img = cv2.imread('/home/tas/桌面/22.jpg')
+    if False:
+        img = cv2.imread('/home/tas/桌面/下载.jpg')
         draw_img = find_face_by_img(img)
         cv2.imshow('face', draw_img)
+        cv2.imwrite('/home/tas/桌面/result2.jpg', draw_img)
         cv2.waitKey(0)
     else:
         find_face_by_video()
