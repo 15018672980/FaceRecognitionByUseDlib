@@ -145,7 +145,8 @@ def find_face_by_video():
         draw_img = find_face_by_img(img, n % 2 == 0)
 
         cv2.imshow('face', draw_img)
-        videoWriter.write(draw_img)
+        # 保存视频
+        # videoWriter.write(draw_img)
         k = cv2.waitKey(10)
         if k == 27:
             break
